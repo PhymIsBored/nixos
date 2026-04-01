@@ -34,57 +34,78 @@
   time.timeZone = "Europe/Berlin";
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
+  i18n = {
+    defaultLocale = "en_US.UTF-8";
+    extraLocaleSettings = {
+      LC_ADDRESS = "de_DE.UTF-8";
+      LC_IDENTIFICATION = "de_DE.UTF-8";
+      LC_MEASUREMENT = "de_DE.UTF-8";
+      LC_MONETARY = "de_DE.UTF-8";
+      LC_NAME = "de_DE.UTF-8";
+      LC_NUMERIC = "de_DE.UTF-8";
+      LC_PAPER = "de_DE.UTF-8";
+      LC_TELEPHONE = "de_DE.UTF-8";
+      LC_TIME = "de_DE.UTF-8";
+    };
+    inputMethod = {
+      type = "fcitx5";
+      enable = true;
+      fcitx5.addons = with pkgs; [
+        fcitx5-gtk 
+        fcitx5-mozc
+        fcitx5-anthy
+        fcitx5-nord            # a color theme
+      ];
+    };
+};
 
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "de_DE.UTF-8";
-    LC_IDENTIFICATION = "de_DE.UTF-8";
-    LC_MEASUREMENT = "de_DE.UTF-8";
-    LC_MONETARY = "de_DE.UTF-8";
-    LC_NAME = "de_DE.UTF-8";
-    LC_NUMERIC = "de_DE.UTF-8";
-    LC_PAPER = "de_DE.UTF-8";
-    LC_TELEPHONE = "de_DE.UTF-8";
-    LC_TIME = "de_DE.UTF-8";
-  };
 
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
-  services.xserver.enable = true;
+  services.xserver = {
+    enable = true;
+
+    # Configure keymap in X11
+    xkb = {
+      layout = "de";
+      variant = "";
+    };
+
+    # Tell Xserver to use the nvidia driver
+    videoDrivers = [ "nvidia" ];
+    # Enable touchpad support (enabled default in most desktopManager).
+    # libinput.enable = true;
+  };
 
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
+  programs.niri.enable = true;
 
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "de";
-    variant = "";
-  };
-  # Tell Xserver to use the nvidia driver
-  services.xserver.videoDrivers = [ "nvidia" ];
 
   # Enable OpenGL/Graphics
-  hardware.graphics = {
-    enable = true;
+  hardware = {
+    graphics = {
+      enable = true;
+    };
+    # Configure Nvidia driver settings
+    nvidia = {
+      # usually requiered for wayland
+      modesetting.enable = true;
+
+      powerManagement.enable = true;
+      powerManagement.finegrained = false;
+
+      # Use proprietary drivers
+      open = true;
+      # Enable nvidia settings menu
+      nvidiaSettings = true;
+
+      # Choose stable driver version
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
+    };
   };
 
-  # Configure Nvidia driver settings
-  hardware.nvidia = {
-    # usually requiered for wayland
-    modesetting.enable = true;
-
-    powerManagement.enable = true;
-    powerManagement.finegrained = false;
-
-    # Use proprietary drivers
-    open = true;
-    # Enable nvidia settings menu
-    nvidiaSettings = true;
-
-    # Choose stable driver version
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
-  };
 
   # Configure console keymap
   console.keyMap = "de";
@@ -108,8 +129,6 @@
     #media-session.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.finn = {
@@ -131,7 +150,7 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim
+    vim 
     wget
     git
     alacritty
@@ -146,20 +165,11 @@
     XMODIFIERS = "@im=fcitx";
   };
 
-  i18n.inputMethod = {
-     type = "fcitx5";
-     enable = true;
-     fcitx5.addons = with pkgs; [
-       fcitx5-gtk
-       fcitx5-mozc
-       fcitx5-anthy
-       fcitx5-nord            # a color theme
-     ];
-   };
 
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
+    nerd-fonts.jetbrains-mono
   ];
 
 
